@@ -15,9 +15,3 @@
 ## Distance sensor
 - Description: measures distance through time difference
 - Status: non-existent
-
-#TODO
-- [ ] ask about rx
-- [ ] test PWM
-- [ ] entity sensor  
-
