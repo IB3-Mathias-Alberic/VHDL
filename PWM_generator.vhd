@@ -8,7 +8,7 @@ entity pwm is
         clk : in std_logic;
         rst : in std_logic;
         -- pwm variables
-        vel : in unsigned(7 downto 0); -- velocity
+        vel : in unsigned(7 downto 0); -- velocity 0-255
         -- output
         pwm_out : out std_logic
     );
