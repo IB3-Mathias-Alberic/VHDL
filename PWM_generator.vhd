@@ -9,7 +9,6 @@ entity pwm is
         rst : in std_logic;
         -- pwm variables
         vel : in unsigned(7 downto 0); -- velocity
-        dir : in std_logic; -- direction: 0 forwards, 1 backwards
         -- output
         pwm_out : out std_logic
     );
