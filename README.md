@@ -8,7 +8,7 @@
 - [ ] Status: [Completed/In Progress/Needs Review/**Update?**]
 
 ### UART parser : UART_parser.vhd
-- [ ] Description: parses the commands and time sent by the RPi
+- [ ] Description: parses the commands and time sent by the RPi and drives motors
 - [ ] Possible updates: /
 - [ ] Status: [Completed/**In Progress**/Needs Review/Update?]
 
