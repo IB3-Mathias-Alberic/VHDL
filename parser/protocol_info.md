@@ -1,6 +1,5 @@
-# PROTOCOL INFO
+# PROTOCOL FRAME FORMAT
 
-Frame Format:
 ┌─────────────┬──────────────┬──────────────┬──────────────┬─────────────┐
 │ Start       │ Command      │ Orientation  │ PWM          │ Time        │
 │ (1 byte)    │ (3 bits)     │ (1 bit)      │ (8 bits)     │ (5 bits)    │
