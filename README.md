@@ -1,8 +1,8 @@
 # VHDL
 
 ## UART receiver : UART_rx.vhd
-- [ ] Description: receives the commands from the RPi
-- [x] Status: ready/might need an update
+-  Description: receives the commands from the RPi
+-  Status: ready/might need an update
 
 ## UART parser : UART_parser.vhd
 - [ ] Description: parses the commands and time sent by the RPi and drives motors
