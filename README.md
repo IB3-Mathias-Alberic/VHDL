@@ -1,25 +1,18 @@
 # VHDL
 
-## Modules
-
-### UART receiver : UART_rx.vhd
+## UART receiver : UART_rx.vhd
 - [ ] Description: receives the commands from the RPi
-- [ ] Possible updates: adapt so it can read more than one character if needed
-- [ ] Status: [Completed/In Progress/Needs Review/**Update?**]
+- [x] Status: ready/might need an update
 
-### UART parser : UART_parser.vhd
+## UART parser : UART_parser.vhd
 - [ ] Description: parses the commands and time sent by the RPi and drives motors
-- [ ] Possible updates: /
-- [ ] Status: [Completed/**In Progress**/Needs Review/Update?]
+- [ ] Status: in progress
 
-### PWM generator : PWM_generator.vhd
+## PWM generator : PWM_generator.vhd
 - [ ] Description: of Module 3
-- [ ] Possible updates: /
-- [ ] Status: [Completed/In Progress/**Needs Review**/Update?]
+- [ ] Status: needs testing
 
-## TODO List
-
-- [ ] Verify UART_rx
-- [ ] complete parser
-- [ ] test pwm
+### Distance sensor
+- [ ] Description: measures distance through time difference
+- [ ] Status: non-existent
 
