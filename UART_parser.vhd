@@ -22,7 +22,7 @@ entity UART_parser is
         );
 end UART_parser;
 
-architecture rtl of ent is
+architecture rtl of UART_parser is
 
 begin
 
