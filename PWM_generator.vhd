@@ -3,6 +3,10 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 entity pwm is
+    generic (
+        DEADZONE : integer := 10 
+    );
+
     port (
         -- standard
         clk : in std_logic;
@@ -17,6 +21,8 @@ end pwm;
 architecture pwm_architecture of pwm is
     signal ctr : unsigned(7 downto 0);
 
+    pwm_invalid <= (vel <= DEADZONE); 
+
 begin
     process(clk)
     begin
@@ -24,13 +30,15 @@ begin
             if rst = '1' then -- rst resets
                 ctr <= (others => '0');
                 pwm_out <= '0';
+            elsif pwm_invalid then
+                pwm_out <=  '0';  -- PWM too low
             else
                 ctr <= ctr + 1;
-                if ctr < vel then
-                    pwm_out <= '1';
-                else
-                    pwm_out <= '0';
-                end if;
+                    if ctr < vel then
+                        pwm_out <= '1';
+                    else
+                        pwm_out <= '0';
+                    end if;
             end if;
         end if;
     end process;
