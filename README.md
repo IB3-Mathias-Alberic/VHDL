@@ -1,29 +1,25 @@
 # VHDL
 
-## Project Overview
-This project consists of three separate VHDL modules. Two of these modules are believed to be completed without issues.
-
 ## Modules
 
-### Module 1
-- [ ] Description of Module 1
-- [ ] Status: [Completed/In Progress/Needs Review]
+### UART receiver : UART_rx.vhd
+- [ ] Description: receives the commands from the RPi
+- [ ] Possible updates: adapt so it can read more than one character if needed
+- [ ] Status: [Completed/In Progress/Needs Review/**Update?**]
 
-### Module 2
-- [ ] Description of Module 2
-- [ ] Status: [Completed/In Progress/Needs Review]
+### UART parser : UART_parser.vhd
+- [ ] Description: parses the commands and time sent by the RPi
+- [ ] Possible updates: /
+- [ ] Status: [Completed/**In Progress**/Needs Review/Update?]
 
-### Module 3
-- [ ] Description of Module 3
-- [ ] Status: [Completed/In Progress/Needs Review]
+### PWM generator : PWM_generator.vhd
+- [ ] Description: of Module 3
+- [ ] Possible updates: /
+- [ ] Status: [Completed/In Progress/**Needs Review**/Update?]
 
 ## TODO List
 
-- [ ] Verify functionality of Module 1
-- [ ] Verify functionality of Module 2
-- [ ] Complete implementation of Module 3
-- [ ] Test all modules together
-- [ ] Document each module's interface and functionality
-- [ ] Add simulation testbenches
-- [ ] Review and fix any potential issues
-- [ ] Update README with detailed module descriptions
+- [ ] Verify UART_rx
+- [ ] complete parser
+- [ ] test pwm
+
