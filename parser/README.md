@@ -10,3 +10,4 @@
 - [ ] receive FSM
 - [ ] command interpretation
 - [ ] command execution
+- [ ] change outputs to ENA_i: PWM = v will be sent via PWM generator
