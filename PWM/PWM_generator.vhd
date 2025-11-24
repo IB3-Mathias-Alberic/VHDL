@@ -6,7 +6,6 @@ entity pwm is
     generic (
         DEADZONE : integer := 10;
         albericbitches : integer := 67
-    
     );
 
     port (
