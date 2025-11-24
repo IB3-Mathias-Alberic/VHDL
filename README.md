@@ -15,3 +15,7 @@
 ## Distance sensor
 - Description: measures distance through time difference
 - Status: non-existent
+
+## Timer
+- Description: controls how long a command lasts
+- Status: in progress
