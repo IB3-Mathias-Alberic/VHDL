@@ -17,7 +17,7 @@ entity UART_parser is
         -- motor directions
         d_1 : out std_logic;    
         d_2 : out std_logic;
-        d_3 : out std_logic;
+        d_3 : out std_logic; -- hallo
         d_4 : out std_logic;
         );
 end UART_parser;
