@@ -4,7 +4,8 @@ use ieee.numeric_std.all;
 
 entity pwm is
     generic (
-        DEADZONE : integer := 10 
+        DEADZONE : integer := 10;
+        albericbitches : integer := 69
     );
 
     port (
