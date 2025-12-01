@@ -4,8 +4,8 @@ use ieee.numeric_std.all;
 
 entity UART_parser is
     generic(
-        CLK_FREQ : integer := 50_000_000;
-        BAUD_RATE : integer := 9600
+        f_clk : integer := 50_000_000;
+        BAUD : integer := 9600
     );
     port (
         -- standard
@@ -29,52 +29,56 @@ end UART_parser;
 architecture rtl of UART_parser is
     component UART_rx is
         generic(
-            CLK_FREQ : integer;
-            BAUD_RATE : integer
+            f_clk : integer;
+            baudrate : integer
         );
         port(
-            clk : in  std_logic;
-            rst : in  std_logic;
-            rx : in  std_logic;
-            rx_data : out std_logic_vector(7 downto 0);
-            rx_valid : out std_logic
+             clk : in  std_logic;
+             rst : in  std_logic;
+             -- bits in
+             rx : in  std_logic;
+             -- received signals
+             d_out : out std_logic_vector(7 downto 0);
+             d_valid : out std_logic
         );
     end component;
     
     --commands
-    constant CMD_FORWARD : std_logic_vector(7 downto 0) := x"46"; -- 'F'
-    constant CMD_BACKWARD : std_logic_vector(7 downto 0) := x"42"; -- 'B'
-    constant CMD_LEFT : std_logic_vector(7 downto 0) := x"4C"; -- 'L'
-    constant CMD_RIGHT : std_logic_vector(7 downto 0) := x"52"; -- 'R'
-    constant CMD_STOP : std_logic_vector(7 downto 0) := x"53"; -- 'S'
-    
+    constant Y : integer := 0; -- forward, backward
+    constant X : integer := 1; -- L, R
+    constant XY : integer := 2; -- y = x
+    constant YX : integer := 3; -- y = -x
+    constant DX : integer := 4; -- turn with cot on x = 0
+    constant DY : integer := 5; -- turn with cot on y = 0
+    constant D : integer := 6; -- turn about 0,0
+
     -- UART signals
     signal rx_data  : std_logic_vector(7 downto 0);
     signal rx_valid : std_logic;
     
     -- Motor control signals
     signal ena1 : std_logic := '0';
-    signal motor2 : std_logic := '0';
+    signal ena2 : std_logic := '0';
     signal ena3 : std_logic := '0';
     signal ena4 : std_logic := '0';
-    signal motor1_dir : std_logic := '0';
-    signal motor2_dir : std_logic := '0';
-    signal motor3_dir : std_logic := '0';
-    signal motor4_dir : std_logic := '0';
+    signal dir1 : std_logic := '0';
+    signal dir2 : std_logic := '0';
+    signal dir3 : std_logic := '0';
+    signal dir4 : std_logic := '0';
     
 begin
     -- UART rx instance
     uart_receiver : UART_RX
         generic map(
-            CLK_FREQ  => CLK_FREQ,
-            BAUD_RATE => BAUD_RATE
-        )
+            f_clk  => f_clk,
+            baudrate => BAUD
+        );
         port map(
             clk => clk,
             rst => rst,
             rx => d_in,
-            rx_data => rx_data,
-            rx_valid => rx_valid
+            d_out => rx_data,
+            d_valid => rx_valid
         );
     
     v_1 <= ena1;
@@ -102,7 +106,7 @@ begin
         elsif rising_edge(clk) then
             if rx_valid = '1' then
                 case rx_data is
-                    when CMD_FORWARD =>
+                    when Y => -- alles aan 
                         ena1 <= '1';
                         ena2 <= '1';
                         ena3 <= '1';
@@ -112,46 +116,64 @@ begin
                         dir3 <= '1'; 
                         dir4 <= '1'; 
                         
-                    when CMD_BACKWARD =>
+                    when X =>
                         ena1 <= '1';
                         ena2 <= '1';
                         ena3 <= '1';
                         ena4 <= '1';
-                        dir1 <= '0'; 
+                        dir1 <= '1'; 
                         dir2 <= '0'; 
                         dir3 <= '0'; 
-                        dir4 <= '0'; 
-                        
-                    when CMD_LEFT =>
-                        ena1 <= '1';
-                        ena2 <= '1';
-                        ena3 <= '1';
-                        ena4 <= '1';
-                        dir1 <= '0';
-                        dir2 <= '1'; 
-                        dir3 <= '0';
                         dir4 <= '1'; 
                         
-                    when CMD_RIGHT =>
+                    when XY => -- alles aan 
                         ena1 <= '1';
                         ena2 <= '1';
                         ena3 <= '1';
                         ena4 <= '1';
-                        dir1 <= '1';  
-                        dir2 <= '0';  
+                        dir1 <= '1'; 
+                        dir2 <= '1'; 
                         dir3 <= '1'; 
-                        dir4 <= '0'; 
+                        dir4 <= '1'; 
+
+                    when YX => -- alles aan 
+                        ena1 <= '1';
+                        ena2 <= '1';
+                        ena3 <= '1';
+                        ena4 <= '1';
+                        dir1 <= '1'; 
+                        dir2 <= '1'; 
+                        dir3 <= '1'; 
+                        dir4 <= '1'; 
+                    when DY => -- alles aan 
+                        ena1 <= '1';
+                        ena2 <= '1';
+                        ena3 <= '1';
+                        ena4 <= '1';
+                        dir1 <= '1'; 
+                        dir2 <= '1'; 
+                        dir3 <= '1'; 
+                        dir4 <= '1'; 
                         
-                    when CMD_STOP =>
-                        ena1 <= '0';
-                        ena2 <= '0';
-                        ena3 <= '0';
-                        ena4 <= '0';
-                        dir1 <= '0';
-                        dir2 <= '0';
-                        dir3 <= '0';
-                        dir4 <= '0';
+                    when DX => -- alles aan 
+                        ena1 <= '1';
+                        ena2 <= '1';
+                        ena3 <= '1';
+                        ena4 <= '1';
+                        dir1 <= '1'; 
+                        dir2 <= '1'; 
+                        dir3 <= '1'; 
+                        dir4 <= '1'; 
                         
+                    when D => -- alles aan 
+                        ena1 <= '1';
+                        ena2 <= '1';
+                        ena3 <= '1';
+                        ena4 <= '1';
+                        dir1 <= '1'; 
+                        dir2 <= '1'; 
+                        dir3 <= '1'; 
+                        dir4 <= '1';     
                     when others =>
                         null;
                 end case;
