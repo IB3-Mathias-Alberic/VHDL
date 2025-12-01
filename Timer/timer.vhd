@@ -5,7 +5,7 @@ use ieee.numeric_std.all;
 entity timer is
     generic(
         f_clk : integer := 50_000_000;
-        LIVE : integer := 200;     -- 200ms
+        LIVE_t : integer := 200;     -- 200ms
         ARRAY : integer := 2000    -- 2s
     );
     port (
@@ -20,8 +20,8 @@ entity timer is
 end timer;
 
 architecture rtl of timer is
-    constant cnt_LIVE : integer := (f_clk / 1000) * LIVE_TIME_MS;
-    constant cnt_ARRAY : integer := (f_clk / 1000) * ARRAY_TIME_MS;
+    constant cnt_LIVE : integer := (f_clk / 1000) * LIVE_t;
+    constant cnt_ARRAY : integer := (f_clk / 1000) * ARRAY_t;
     
     signal ctr : integer range 0 to cnt_ARRAY := 0;
     signal max_count : integer range 0 to cnt_ARRAY := cnt_LIVE;
@@ -42,7 +42,7 @@ begin
                 ctr <= 0;
                 d_out <= '0';
             end if;
-        end if;
+        end if;0
     end process;
     
 end architecture rtl;
