@@ -14,10 +14,10 @@ entity UART_parser is
         -- input = uart via RPi
         d_in : in std_logic;
         -- motor PWM speed
-        v_1 : out std_logic;    
-        v_2 : out std_logic;
-        v_3 : out std_logic;
-        v_4 : out std_logic;
+        ena_1 : out std_logic;    
+        ena_2 : out std_logic;
+        ena_3 : out std_logic;
+        ena_4 : out std_logic;
         -- motor directions
         d_1 : out std_logic;    
         d_2 : out std_logic;
@@ -43,20 +43,20 @@ architecture rtl of UART_parser is
         );
     end component;
     
-    --commands
-    constant Y : integer := 0; -- forward, backward
-    constant X : integer := 1; -- L, R
-    constant XY : integer := 2; -- y = x
-    constant YX : integer := 3; -- y = -x
-    constant DX : integer := 4; -- turn with cot on x = 0
-    constant DY : integer := 5; -- turn with cot on y = 0
-    constant D : integer := 6; -- turn about 0,0
+    constant Y : std_logic_vector(7 downto 0) := x"59"; --F/B
+    constant X : std_logic_vector(7 downto 0) := x"79"; -- L/R
+    constant XY : std_logic_vector(7 downto 0) := x"58"; -- y = x
+    constant YX : std_logic_vector(7 downto 0) := x"78"; -- y = -x
+    constant DX : std_logic_vector(7 downto 0) := x"41"; -- turn about 0,y
+    constant DY : std_logic_vector(7 downto 0) := x"42"; -- turn about x,0
+    constant D : std_logic_vector(7 downto 0) := x"43"; -- turn
+    constant STOP : std_logic_vector(7 downto 0) := x"53"; -- stop, only in array mode
 
     -- UART signals
     signal rx_data  : std_logic_vector(7 downto 0);
     signal rx_valid : std_logic;
     
-    -- Motor control signals
+    -- motor control signals
     signal ena1 : std_logic := '0';
     signal ena2 : std_logic := '0';
     signal ena3 : std_logic := '0';
@@ -66,31 +66,28 @@ architecture rtl of UART_parser is
     signal dir3 : std_logic := '0';
     signal dir4 : std_logic := '0';
     
+    -- motor layout?
+    --   FL(1)FR(2)
+    --   BL(3)BR(4)
+    
 begin
     -- UART rx instance
     uart_receiver : UART_RX
         generic map(
-            f_clk  => f_clk,
+            f_clk    => f_clk,
             baudrate => BAUD
-        );
+        )
         port map(
-            clk => clk,
-            rst => rst,
-            rx => d_in,
-            d_out => rx_data,
+            clk     => clk,
+            rst     => rst,
+            rx      => d_in,
+            d_out   => rx_data,
             d_valid => rx_valid
         );
     
-    v_1 <= ena1;
-    v_2 <= ena2;
-    v_3 <= ena3;
-    v_4 <= ena4;
-    d_1 <= dir1;
-    d_2 <= dir2;
-    d_3 <= dir3;
-    d_4 <= dir4;
     
-    -- cmd parser process
+    
+    -- Command parser process
     process(clk, rst)
     begin
         if rst = '1' then
@@ -106,81 +103,103 @@ begin
         elsif rising_edge(clk) then
             if rx_valid = '1' then
                 case rx_data is
-
-                    -- VERANDER DE RICHTINGEN EN ENAS NOG
-                    when Y => -- alles aan 
+                    -- a) Y-axis: Forward (alle wielen vooruit)
+                    when Y =>
                         ena1 <= '1';
                         ena2 <= '1';
                         ena3 <= '1';
                         ena4 <= '1';
-                        dir1 <= '1'; 
-                        dir2 <= '1'; 
-                        dir3 <= '1'; 
-                        dir4 <= '1'; 
-                        
+                        dir1 <= '0';
+                        dir2 <= '0';
+                        dir3 <= '0';
+                        dir4 <= '0';
+                    
                     when X =>
                         ena1 <= '1';
                         ena2 <= '1';
                         ena3 <= '1';
                         ena4 <= '1';
-                        dir1 <= '1'; 
+                        dir1 <= '1';
+                        dir2 <= '1';
+                        dir3 <= '1';
+                        dir4 <= '1';
+                    
+                    when XY =>
+                        ena1 <= '1';
+                        ena2 <= '1';
+                        ena3 <= '1';
+                        ena4 <= '1';
+                        dir1 <= '0';
+                        dir2 <= '1';
+                        dir3 <= '1';
+                        dir4 <= '0';
+                    
+                    when YX =>
+                        ena1 <= '1';
+                        ena2 <= '1';
+                        ena3 <= '1';
+                        ena4 <= '1';
+                        dir1 <= '1';
+                        dir2 <= '0';
+                        dir3 <= '0';
+                        dir4 <= '1';
+                    
+                    when DX =>
+                        ena1 <= '0'; 
+                        ena2 <= '1'; 
+                        ena3 <= '1'; 
+                        ena4 <= '0'; 
+                        dir1 <= '0'; 
                         dir2 <= '0'; 
                         dir3 <= '0'; 
-                        dir4 <= '1'; 
-                        
-                    when XY => -- alles aan 
+                        dir4 <= '0';
+                    
+                    when DY =>
+                        ena1 <= '1';
+                        ena2 <= '0'; 
+                        ena3 <= '0'; 
+                        ena4 <= '1'; 
+                        dir1 <= '0'; 
+                        dir2 <= '0';
+                        dir3 <= '0';
+                        dir4 <= '0'; 
+                    
+                    when D =>
                         ena1 <= '1';
                         ena2 <= '1';
                         ena3 <= '1';
                         ena4 <= '1';
-                        dir1 <= '1'; 
+                        dir1 <= '0'; 
                         dir2 <= '1'; 
-                        dir3 <= '1'; 
+                        dir3 <= '0'; 
                         dir4 <= '1'; 
-
-                    when YX => -- alles aan 
-                        ena1 <= '1';
-                        ena2 <= '1';
-                        ena3 <= '1';
-                        ena4 <= '1';
-                        dir1 <= '1'; 
-                        dir2 <= '1'; 
-                        dir3 <= '1'; 
-                        dir4 <= '1'; 
-                    when DY => -- alles aan 
-                        ena1 <= '1';
-                        ena2 <= '1';
-                        ena3 <= '1';
-                        ena4 <= '1';
-                        dir1 <= '1'; 
-                        dir2 <= '1'; 
-                        dir3 <= '1'; 
-                        dir4 <= '1'; 
-                        
-                    when DX => -- alles aan 
-                        ena1 <= '1';
-                        ena2 <= '1';
-                        ena3 <= '1';
-                        ena4 <= '1';
-                        dir1 <= '1'; 
-                        dir2 <= '1'; 
-                        dir3 <= '1'; 
-                        dir4 <= '1'; 
-                        
-                    when D => -- alles aan 
-                        ena1 <= '1';
-                        ena2 <= '1';
-                        ena3 <= '1';
-                        ena4 <= '1';
-                        dir1 <= '1'; 
-                        dir2 <= '1'; 
-                        dir3 <= '1'; 
-                        dir4 <= '1';     
+                    
+                    -- STOP
+                    when STOP =>
+                        ena1 <= '0';
+                        ena2 <= '0';
+                        ena3 <= '0';
+                        ena4 <= '0';
+                        dir1 <= '0';
+                        dir2 <= '0';
+                        dir3 <= '0';
+                        dir4 <= '0';
+                    
                     when others =>
+                        --keep state
                         null;
                 end case;
             end if;
         end if;
     end process;
     
+    ena_1 <= ena1;
+    ena_2 <= ena2;
+    ena_3 <= ena3;
+    ena_4 <= ena4;
+    d_1 <= dir1;
+    d_2 <= dir2;
+    d_3 <= dir3;
+    d_4 <= dir4;
+
 end architecture rtl;
