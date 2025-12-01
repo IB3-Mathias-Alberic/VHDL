@@ -106,6 +106,8 @@ begin
         elsif rising_edge(clk) then
             if rx_valid = '1' then
                 case rx_data is
+
+                    -- VERANDER DE RICHTINGEN EN ENAS NOG
                     when Y => -- alles aan 
                         ena1 <= '1';
                         ena2 <= '1';
