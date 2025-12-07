@@ -4,8 +4,7 @@ use ieee.numeric_std.all;
 
 entity pwm is
     generic (
-        DEADZONE : integer := 10;
-        albericbitches : integer := 69
+        DEADZONE : integer := 10; -- set 15 as minimum in the app
     );
 
     port (
@@ -13,7 +12,7 @@ entity pwm is
         clk : in std_logic;
         rst : in std_logic;
         -- pwm variables
-        vel : in unsigned(7 downto 0); -- velocity 0-255
+        pwm : in unsigned(7 downto 0); -- velocity 0-255
         -- output
         pwm_out : out std_logic
     );
@@ -22,9 +21,11 @@ end pwm;
 architecture pwm_architecture of pwm is
     signal ctr : unsigned(7 downto 0);
 
-    pwm_invalid <= (vel <= DEADZONE); 
+    signal pwm_invalid : std_logic := 0; 
 
 begin
+    pwm_invalid <= (pwm <= DEADZONE); 
+
     process(clk)
     begin
         if rising_edge(clk) then
@@ -35,7 +36,7 @@ begin
                 pwm_out <=  '0';  -- PWM too low
             else
                 ctr <= ctr + 1;
-                    if ctr < vel then
+                    if ctr < pwm then
                         pwm_out <= '1';
                     else
                         pwm_out <= '0';
