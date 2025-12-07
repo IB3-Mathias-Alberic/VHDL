@@ -25,14 +25,14 @@ end controller;
 
 architecture rtl of controller is
     
-    constant Y : std_logic_vector(2 downto 0) := "0000"; --F/B
-    constant X : std_logic_vector(2 downto 0) := "0001"; -- L/R
-    constant XY : std_logic_vector(2 downto 0) := "0010"; -- y = x
-    constant YX : std_logic_vector(2 downto 0) := "0011"; -- y = -x
-    constant DX : std_logic_vector(2 downto 0) := "0100"; -- turn about 0,y
-    constant DY : std_logic_vector(2 downto 0) := "0101"; -- turn about x,0
-    constant D : std_logic_vector(2 downto 0) := "0110"; -- turn
-    constant STILL : std_logic_vector(2 downto 0) := "0111"; -- stop, only in array mode
+    constant Y : std_logic_vector(2 downto 0) := "000"; --F/B
+    constant X : std_logic_vector(2 downto 0) := "001"; -- L/R
+    constant XY : std_logic_vector(2 downto 0) := "010"; -- y = x
+    constant YX : std_logic_vector(2 downto 0) := "011"; -- y = -x
+    constant DX : std_logic_vector(2 downto 0) := "100"; -- turn about 0,y
+    constant DY : std_logic_vector(2 downto 0) := "101"; -- turn about x,0
+    constant D : std_logic_vector(2 downto 0) := "110"; -- turn
+    constant STILL : std_logic_vector(2 downto 0) := "111"; -- stop, only in array mode
 
     -- UART signals
     signal rx_data  : std_logic_vector(2 downto 0);

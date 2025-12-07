@@ -18,7 +18,7 @@ entity UART_Rx is
         -- bits in
         rx : in  std_logic;
         -- received signals
-        d_out : out std_logic_vector(7 downto 0);
+        d_out : out std_logic_vector(2 downto 0);
         d_valid : out std_logic
     );
 end UART_Rx;
@@ -40,7 +40,7 @@ architecture Rx of UART_Rx is
     signal s_state : state_t := IDLE;
 
     -- data 
-    signal s_data : std_logic_vector(7 downto 0) := (others => '0');
+    signal s_data : std_logic_vector(2 downto 0) := (others => '0');
     signal s_count : natural range 0 to 7 := 0;
     signal s_d_valid: std_logic := '0';
 
