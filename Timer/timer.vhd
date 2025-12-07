@@ -28,20 +28,27 @@ begin
             active <= '0';
             d_out <= '0';
         elsif rising_edge(clk) then
-            d_out <= '0';
-            if start = '1' then
-                active <= '1';
-                 ctr <= 0;
-            elsif active = '1' then
-                if  ctr < (LIVE - 1) and mode = '0' then
-                     ctr <=  ctr + 1;
-                elsif  ctr < (ROUTINE - 1) and mode = '1' then
-                     ctr <=  ctr + 1;
+    d_out <= '0';
+    if start = '1' then
+        active <= '1';
+        ctr <= 0;
+        elsif active = '1' then
+            if mode = '0' then -- live
+                if ctr < (LIVE - 1) then
+                    ctr <= ctr + 1;
+                else
+                    active <= '0';
+                    d_out <= '1';
+                end if;
+            else --(mode = '1')            routine
+                if ctr < (ROUTINE - 1) then
+                    ctr <= ctr + 1;
                 else
                     active <= '0';
                     d_out <= '1';
                 end if;
             end if;
         end if;
+    end if;
     end process;
 end architecture rtl;
