@@ -4,7 +4,7 @@ use ieee.numeric_std.all;
 
 entity pwm is
     generic (
-        DEADZONE : integer := 10; -- set 15 as minimum in the app
+        DEADZONE : integer := 10 -- set 15 as minimum in the app
     );
 
     port (
@@ -20,11 +20,10 @@ end pwm;
 
 architecture pwm_architecture of pwm is
     signal ctr : unsigned(7 downto 0);
-
-    signal pwm_invalid : std_logic := 0; 
+    signal pwm_invalid : boolean  := false; 
 
 begin
-    pwm_invalid <= (pwm <= DEADZONE); 
+    pwm_invalid <= (pwm < DEADZONE); 
 
     process(clk)
     begin
