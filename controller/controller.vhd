@@ -63,7 +63,7 @@ begin
             
         elsif rising_edge(clk) then
             if rx_valid = '1' then
-                case rx_data is
+                case rx_cmd is
                     when Y =>
                         ena1 <= '1'; dir1 <= '0';
                         ena2 <= '1'; dir2 <= '0';
