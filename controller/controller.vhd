@@ -9,7 +9,8 @@ entity controller is
         clk : in std_logic;
         rst : in std_logic;
         -- input = uart via RPi
-        d_in : in std_logic_vector(7 downto 0); -- int wide?
+        rx_data : in std_logic_vector(7 downto 0);
+        rx_valid = in std_logic;
         -- motor PWM speed
         ena_1 : out std_logic;    
         ena_2 : out std_logic;
@@ -35,8 +36,7 @@ architecture rtl of controller is
     constant STILL : std_logic_vector(2 downto 0) := "111"; -- stop, only in array mode
 
     -- UART signals
-    signal rx_data  : std_logic_vector(2 downto 0);
-    signal rx_valid : std_logic;
+    signal rx_sig <= rx_data(2 downto 0);
     
     -- motor control signals
     signal ena1, ena2, ena3, ena4 : std_logic;
