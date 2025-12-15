@@ -1,64 +1,50 @@
-library ieee;
-use ieee.std_logic_1164.all;
-use ieee.numeric_std.all;
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
 
 entity timer is
-    generic (
-        f_clk : integer := 50_000_000  -- 50 MHz
+    Generic (
+        CLK_FREQ : integer := 50000000
     );
-    port (
-        clk   : in  std_logic;
-        rst   : in  std_logic;
-        mode  : in  std_logic;   -- '0' = live (200 ms), '1' = routine (2 s)
-        start : in  std_logic;   -- trigger om timer te starten
-        d_out : out std_logic    -- = '1' gedurende de hele actieve periode
+    Port (
+        clk : in STD_LOGIC;
+        rst : in STD_LOGIC;
+        button : in STD_LOGIC;
+        output : out STD_LOGIC
     );
-end entity timer;
+end timer;
 
-architecture rtl of timer is
-    constant LIVE    : integer := f_clk / 5;      -- 200 ms  (0.2 * 50e6)
-    constant ROUTINE : integer := f_clk * 2;      -- 2 s    (2 * 50e6)
-    signal ctr    : integer range 0 to ROUTINE;
-    signal active : std_logic := '0';
+architecture Behavioral of timer is
+    constant COUNT_MAX : integer := CLK_FREQ * 2;
+    signal counter : integer range 0 to COUNT_MAX := 0;
+    signal timer_active : std_logic := '0';
+    signal button_prev : std_logic := '0';
 begin
-
     process(clk, rst)
     begin
         if rst = '1' then
-            ctr    <= 0;
-            active <= '0';
-            d_out  <= '0';
+            counter <= 0;
+            timer_active <= '0';
+            button_prev <= '0';
+            output <= '0';
         elsif rising_edge(clk) then
-            d_out <= '0';  -- default laag
-
-            if start = '1' then
-                -- Start nieuwe timing
-                active <= '1';
-                ctr    <= 0;
-                d_out  <= '1';
-            elsif active = '1' then
-                -- Blijf hoog tijdens tellen
-                d_out <= '1';
-
-                if mode = '0' then
-                    -- Live mode: 200 ms
-                    if ctr < (LIVE - 1) then
-                        ctr <= ctr + 1;
-                    else
-                        active <= '0';
-                        d_out <= '0';
-                    end if;
+            button_prev <= button;
+            if button = '1' and button_prev = '0' then
+                timer_active <= '1';
+                counter <= 0;
+                output <= '1';
+            elsif timer_active = '1' then
+                if counter < COUNT_MAX - 1 then
+                    counter <= counter + 1;
+                    output <= '1';
                 else
-                    -- Routine mode: 2 s
-                    if ctr < (ROUTINE - 1) then
-                        ctr <= ctr + 1;
-                    else
-                        active <= '0';
-                        d_out <= '0';
-                    end if;
+                    timer_active <= '0';
+                    counter <= 0;
+                    output <= '0';
                 end if;
+            else
+                output <= '0';
             end if;
         end if;
     end process;
-
-end architecture rtl;
+end Behavioral;

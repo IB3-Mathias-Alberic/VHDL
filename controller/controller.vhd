@@ -9,7 +9,7 @@ entity controller is
         clk : in std_logic;
         rst : in std_logic;
         -- input = uart via RPi
-        d_in : in std_logic_vector(3 downto 0); -- int wide?
+        d_in : in std_logic_vector(7 downto 0); -- int wide?
         -- motor PWM speed
         ena_1 : out std_logic;    
         ena_2 : out std_logic;
