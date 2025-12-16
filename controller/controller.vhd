@@ -12,7 +12,7 @@ entity controller is
         rx_data : in std_logic_vector(7 downto 0);
         rx_valid : in std_logic;
         
-        -- motor PWM speed (combined)
+        -- motor ena
         ena_front : out std_logic;
         ena_rear : out std_logic;
         
@@ -98,7 +98,6 @@ begin
                         ena2 <= '1'; dir2 <= '1';
                         ena3 <= '1'; dir3 <= '0';
                         ena4 <= '1'; dir4 <= '1';
-                    -- STILL
                     when STILL =>
                         ena1 <= '0'; dir1 <= '0';
                         ena2 <= '0'; dir2 <= '0';
@@ -112,11 +111,12 @@ begin
         end if;
     end process;
     
-    -- Combine enables: front motors (1&2) and rear motors (3&4)
+    -- front is always ena or not together, same with rear
+    -- also only one cable for ena
     ena_front <= ena1 or ena2;
     ena_rear <= ena3 or ena4;
     
-    -- Concatenate direction with its inverse for each motor
+    -- driver uses cw and ccw which are the xor highs
     d_1 <= dir1 & (not dir1);
     d_2 <= dir2 & (not dir2);
     d_3 <= dir3 & (not dir3);
