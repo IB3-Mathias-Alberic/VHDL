@@ -2,20 +2,19 @@
 
 ## UART receiver : UART_rx.vhd
 -  Description: receives the commands from the RPi
--  Status: ready/might need an update
+-  Status: ready
 
-## UART parser : UART_parser.vhd
-- Description: parses the commands and time sent by the RPi and drives motors
-- Status: in progress
+## controller : controller.vhd
+- Description: parses the commands received by uartRX and drives motors
+- Status: done
 
 ## PWM generator : PWM_generator.vhd
-- Description: of Module 3
-- Status: needs testing
+- Description: motor speed
+- Status: done
 
 ## Distance sensor
 - Description: measures distance through time difference
 - Status: non-existent
 
 ## Timer
-- Description: controls how long a command lasts
-- Status: in progress
+- Description: implemented via python
