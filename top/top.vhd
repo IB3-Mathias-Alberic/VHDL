@@ -1,4 +1,3 @@
-
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
@@ -37,13 +36,10 @@ architecture structural of top is
     signal rx_valid : std_logic;
     
     -- motor enable signals from controller
-    signal ena_1, ena_2, ena_3, ena_4 : std_logic;
+    signal ena_front, ena_rear : std_logic;
     
-    -- motor direction signals from controller (internal)
-    signal cw1_int, ccw1_int : std_logic;
-    signal cw2_int, ccw2_int : std_logic;
-    signal cw3_int, ccw3_int : std_logic;
-    signal cw4_int, ccw4_int : std_logic;
+    -- motor direction signals from controller (internal as vectors)
+    signal dir1_int, dir2_int, dir3_int, dir4_int : std_logic_vector(1 downto 0);
     
     component UART_Rx is
         generic (
@@ -74,18 +70,12 @@ architecture structural of top is
             rst : in  std_logic;
             rx_data : in  std_logic_vector(7 downto 0);
             rx_valid : in  std_logic;
-            ena_1 : out std_logic;
-            ena_2 : out std_logic;
-            ena_3 : out std_logic;
-            ena_4 : out std_logic;
-            cw_1 : out std_logic;
-            ccw_1 : out std_logic;
-            cw_2 : out std_logic;
-            ccw_2 : out std_logic;
-            cw_3 : out std_logic;
-            ccw_3 : out std_logic;
-            cw_4 : out std_logic;
-            ccw_4 : out std_logic
+            ena_front : out std_logic;
+            ena_rear : out std_logic;
+            dir_1 : out std_logic_vector(1 downto 0);
+            dir_2 : out std_logic_vector(1 downto 0);
+            dir_3 : out std_logic_vector(1 downto 0);
+            dir_4 : out std_logic_vector(1 downto 0)
         );
     end component;
     
@@ -110,18 +100,12 @@ begin
             rst => rst,
             rx_data => rx_data,
             rx_valid => rx_valid,
-            ena_1 => ena_1,
-            ena_2 => ena_2,
-            ena_3 => ena_3,
-            ena_4 => ena_4,
-            cw_1 => cw1_int,
-            ccw_1 => ccw1_int,
-            cw_2 => cw2_int,
-            ccw_2 => ccw2_int,
-            cw_3 => cw3_int,
-            ccw_3 => ccw3_int,
-            cw_4 => cw4_int,
-            ccw_4 => ccw4_int
+            ena_front => ena_front,
+            ena_rear => ena_rear,
+            dir_1 => dir1_int,
+            dir_2 => dir2_int,
+            dir_3 => dir3_int,
+            dir_4 => dir4_int
         );
     
     pwm_inst : pwm
@@ -134,18 +118,11 @@ begin
     
     -- Direction logic with master direction inversion
     -- dir(1) = CW, dir(0) = CCW
-    -- When dir_M = '1', swap CW and CCW
-    dir_1(1) <= cw1_int when dir_M = '0' else ccw1_int;
-    dir_1(0) <= ccw1_int when dir_M = '0' else cw1_int;
-    
-    dir_2(1) <= cw2_int when dir_M = '0' else ccw2_int;
-    dir_2(0) <= ccw2_int when dir_M = '0' else cw2_int;
-    
-    dir_3(1) <= cw3_int when dir_M = '0' else ccw3_int;
-    dir_3(0) <= ccw3_int when dir_M = '0' else cw3_int;
-    
-    dir_4(1) <= cw4_int when dir_M = '0' else ccw4_int;
-    dir_4(0) <= ccw4_int when dir_M = '0' else cw4_int;
+    -- When dir_M = '1', swap CW and CCW bits
+    dir_1 <= dir1_int(0) & dir1_int(1) when dir_M = '1' else dir1_int;
+    dir_2 <= dir2_int(0) & dir2_int(1) when dir_M = '1' else dir2_int;
+    dir_3 <= dir3_int(0) & dir3_int(1) when dir_M = '1' else dir3_int;
+    dir_4 <= dir4_int(0) & dir4_int(1) when dir_M = '1' else dir4_int;
     
     -- LED debugging output
     leds <= rx_data;

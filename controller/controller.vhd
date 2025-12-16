@@ -12,20 +12,19 @@ entity controller is
         rx_data : in std_logic_vector(7 downto 0);
         rx_valid : in std_logic;
         
-        -- motor PWM speed
+        -- motor PWM speed (combined)
         ena_front : out std_logic;
         ena_rear : out std_logic;
         
-        -- motor directions (2-bit: CW, CCW)
-        dir_1 : out std_logic_vector(1 downto 0);
-        dir_2 : out std_logic_vector(1 downto 0);
-        dir_3 : out std_logic_vector(1 downto 0);
-        dir_4 : out std_logic_vector(1 downto 0)
+        -- motor directions (2 bits each: dir & NOT dir)
+        d_1 : out std_logic_vector(1 downto 0);
+        d_2 : out std_logic_vector(1 downto 0);
+        d_3 : out std_logic_vector(1 downto 0);
+        d_4 : out std_logic_vector(1 downto 0)
     );
 end controller;
 
 architecture rtl of controller is
-    -- movements
     constant Y : std_logic_vector(2 downto 0) := "000"; --F/B
     constant X : std_logic_vector(2 downto 0) := "001"; -- L/R
     constant XY : std_logic_vector(2 downto 0) := "010"; -- y = x
@@ -35,116 +34,92 @@ architecture rtl of controller is
     constant D : std_logic_vector(2 downto 0) := "110"; -- turn
     constant STILL : std_logic_vector(2 downto 0) := "111"; -- stop, only in array mode
     
-    -- direction constants
-    constant DIR_CW : std_logic_vector(1 downto 0) := "10";
-    constant DIR_CCW : std_logic_vector(1 downto 0) := "01";
-    constant DIR_STOP : std_logic_vector(1 downto 0) := "00";
-    
     -- UART signals
     signal rx_cmd : std_logic_vector(2 downto 0);
     
     -- motor control signals
-    signal ena_F, ena_R : std_logic;
-    signal dir1, dir2, dir3, dir4 : std_logic_vector(1 downto 0);
+    signal ena1, ena2, ena3, ena4 : std_logic;
+    signal dir1, dir2, dir3, dir4 : std_logic;
     
     -- motor layout
     -- FL(1)FR(2)
     -- BL(3)BR(4)
     
 begin
-    -- only take last two bits for command parsing
     rx_cmd <= rx_data(2 downto 0);
     
     -- controller
     process(clk, rst)
     begin
         if rst = '1' then
-            ena_F <= '0';
-            ena_R <= '0';
-            dir1 <= DIR_STOP;
-            dir2 <= DIR_STOP;
-            dir3 <= DIR_STOP;
-            dir4 <= DIR_STOP;
+            ena1 <= '0';
+            ena2 <= '0';
+            ena3 <= '0';
+            ena4 <= '0';
+            dir1 <= '0';
+            dir2 <= '0';
+            dir3 <= '0';
+            dir4 <= '0';
         elsif rising_edge(clk) then
             if rx_valid = '1' then
                 case rx_cmd is
                     when Y =>
-                        ena_F <= '1';
-                        ena_R <= '1';
-                        dir1 <= DIR_CW;
-                        dir2 <= DIR_CW;
-                        dir3 <= DIR_CW;
-                        dir4 <= DIR_CW;
-                    
+                        ena1 <= '1'; dir1 <= '0';
+                        ena2 <= '1'; dir2 <= '0';
+                        ena3 <= '1'; dir3 <= '0';
+                        ena4 <= '1'; dir4 <= '0';
                     when X =>
-                        ena_F <= '1'; 
-                        ena_R <= '1'; 
-                        dir1 <= DIR_CW;
-                        dir2 <= DIR_CCW;
-                        dir3 <= DIR_CCW;
-                        dir4 <= DIR_CW;
-                    
+                        ena1 <= '1'; dir1 <= '0';
+                        ena2 <= '1'; dir2 <= '1';
+                        ena3 <= '1'; dir3 <= '1';
+                        ena4 <= '1'; dir4 <= '0';
                     when XY =>
-                        ena_F <= '1'; 
-                        ena_R <= '1'; 
-                        dir1 <= DIR_CW;
-                        dir2 <= DIR_CCW;
-                        dir3 <= DIR_CCW;
-                        dir4 <= DIR_CW;
-                    
+                        ena1 <= '1'; dir1 <= '0';
+                        ena2 <= '1'; dir2 <= '1';
+                        ena3 <= '1'; dir3 <= '1';
+                        ena4 <= '1'; dir4 <= '0';
                     when YX =>
-                        ena_F <= '1'; 
-                        ena_R <= '1'; 
-                        dir1 <= DIR_CCW;
-                        dir2 <= DIR_CW;
-                        dir3 <= DIR_CW;
-                        dir4 <= DIR_CCW;
-                    
+                        ena1 <= '1'; dir1 <= '1';
+                        ena2 <= '1'; dir2 <= '0';
+                        ena3 <= '1'; dir3 <= '0';
+                        ena4 <= '1'; dir4 <= '1';
                     when DX =>
-                        ena_F <= '1'; 
-                        ena_R <= '1'; 
-                        dir1 <= DIR_CW;
-                        dir2 <= DIR_CCW;
-                        dir3 <= DIR_STOP;
-                        dir4 <= DIR_STOP;
-                    
+                        ena1 <= '1'; dir1 <= '0';
+                        ena2 <= '1'; dir2 <= '1';
+                        ena3 <= '0'; dir3 <= '0';
+                        ena4 <= '0'; dir4 <= '0';
                     when DY =>
-                        ena_F <= '0'; 
-                        ena_R <= '0'; 
-                        dir1 <= DIR_STOP;
-                        dir2 <= DIR_STOP;
-                        dir3 <= DIR_CW;
-                        dir4 <= DIR_CCW;
-                    
+                        ena1 <= '0'; dir1 <= '0';
+                        ena2 <= '0'; dir2 <= '0';
+                        ena3 <= '1'; dir3 <= '0';
+                        ena4 <= '1'; dir4 <= '1';
                     when D =>
-                        ena_F <= '1'; 
-                        ena_R <= '1'; 
-                        dir1 <= DIR_CW;
-                        dir2 <= DIR_CCW;
-                        dir3 <= DIR_CW;
-                        dir4 <= DIR_CCW;
-                    
+                        ena1 <= '1'; dir1 <= '0';
+                        ena2 <= '1'; dir2 <= '1';
+                        ena3 <= '1'; dir3 <= '0';
+                        ena4 <= '1'; dir4 <= '1';
+                    -- STILL
                     when STILL =>
-                        ena_F <= '0';
-                        ena_R <= '0';
-                        dir1 <= DIR_STOP; 
-                        dir2 <= DIR_STOP;
-                        dir3 <= DIR_STOP;
-                        dir4 <= DIR_STOP;
-                    
+                        ena1 <= '0'; dir1 <= '0';
+                        ena2 <= '0'; dir2 <= '0';
+                        ena3 <= '0'; dir3 <= '0';
+                        ena4 <= '0'; dir4 <= '0';
                     when others =>
-                        null; --keep state
+                        --keep state
+                        null;
                 end case;
             end if;
         end if;
     end process;
     
-    ena_front <= ena_F;
-    ena_rear <= ena_R;
+    -- Combine enables: front motors (1&2) and rear motors (3&4)
+    ena_front <= ena1 or ena2;
+    ena_rear <= ena3 or ena4;
     
-    dir_1 <= dir1;
-    dir_2 <= dir2;
-    dir_3 <= dir3;
-    dir_4 <= dir4;
+    -- Concatenate direction with its inverse for each motor
+    d_1 <= dir1 & (not dir1);
+    d_2 <= dir2 & (not dir2);
+    d_3 <= dir3 & (not dir3);
+    d_4 <= dir4 & (not dir4);
     
 end architecture rtl;
