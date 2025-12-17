@@ -21,6 +21,7 @@ entity controller is
         d_2 : out std_logic;
         d_3 : out std_logic;
         d_4 : out std_logic
+        
     );
 end controller;
 
@@ -121,13 +122,10 @@ begin
         end if;
     end process;
     
-    ena_1 <= ena1;
-    ena_2 <= ena2;
-    ena_3 <= ena3;
-    ena_4 <= ena4;
-    d_1 <= dir1;
-    d_2 <= dir2;
-    d_3 <= dir3;
-    d_4 <= dir4;
+    d_1 <= dir1;    ena_1 <= ena1;
+    d_2 <= dir2;    ena_2 <= ena2;
+    d_3 <= dir3;    ena_3 <= ena3;
+    d_4 <= dir4;    ena_4 <= ena4;
+
 
 end architecture rtl;

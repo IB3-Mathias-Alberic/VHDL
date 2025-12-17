@@ -23,6 +23,11 @@ entity top is
         dir_2 : out std_logic;
         dir_3 : out std_logic;
         dir_4 : out std_logic;
+        -- inverted signals
+        d_1n : out std_logic;    
+        d_2n : out std_logic;
+        d_3n : out std_logic;
+        d_4n : out std_logic
         -- LEDs
         leds : out std_logic_vector(7 downto 0)
     );
@@ -125,6 +130,10 @@ begin
     dir_3 <= d_3 xor dir_M;
     dir_4 <= d_4 xor dir_M;
     
+    d_1n <= (not dir1);
+    d_2n <= (not dir2);
+    d_3n <= (not dir3);
+    d_4n <= (not dir4);
     -- LED array voor debugging (toont huidige rx_data)
     leds <= rx_data;
 
