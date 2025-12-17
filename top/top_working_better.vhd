@@ -140,9 +140,6 @@ begin
     dir_2 <= (d_2_top xor dir_M) & ((not d_2_top) xor dir_M);
     dir_3 <= (d_3_top xor dir_M) & ((not d_3_top) xor dir_M);
     dir_4 <= (d_4_top xor dir_M) & ((not d_4_top) xor dir_M);
-
-   
-
     
     -- Gate PWM outputs with enable signals
     ena_front <= ena_1_top and ena_2_top;
