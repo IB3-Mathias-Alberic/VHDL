@@ -15,7 +15,13 @@ entity top is
         rx : in std_logic; -- b18
         -- PWM
         pwm_in : in unsigned(7 downto 0); -- find space
-        pwm_out : out std_logic; -- needs distribution?
+        pwwm_out : out std_logic; -- like this 
+        --pwm_out_1 : out std_logic; or distriibuted
+        --pwm_out_2 : out std_logic; 
+        --pwm_out_3 : out std_logic; 
+        --pwm_out_4 : out std_logic; 
+
+
         -- ena
         ena_front : out std_logic; -- choose port
         ena_rear : out std_logic; -- choose port
@@ -39,6 +45,7 @@ architecture structural of top is
     -- motor direction signals
     signal d_1_top, d_2_top, d_3_top, d_4_top : std_logic;
     signal ena_1_top, ena_2_top, ena_3_top, ena_4_top : std_logic;  
+
     
     component UART_Rx is
         generic (
