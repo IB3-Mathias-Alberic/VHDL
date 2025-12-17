@@ -133,10 +133,10 @@ begin
     dir_3 <= (d_3 xor dir_M) and ena_3;
     dir_4 <= (d_4 xor dir_M) and ena_4;
     -- invert CCW?
-    dir_1n <= (not d_1) xor dir_M;
-    dir_2n <= (not d_2) xor dir_M;
-    dir_3n <= (not d_3) xor dir_M;
-    dir_4n <= (not d_4) xor dir_M;
+    dir_1n <= ((not d_1) xor dir_M) and (ena_1);
+    dir_2n <= ((not d_2) xor dir_M) and (ena_2);
+    dir_3n <= ((not d_3) xor dir_M) and (ena_3);
+    dir_4n <= ((not d_4) xor dir_M) and (ena_4);
     -- standby
     s1 <= '1';
     s2 <= '1';
