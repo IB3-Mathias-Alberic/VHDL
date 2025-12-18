@@ -31,8 +31,6 @@ architecture rtl of controller is
     constant X : std_logic_vector(2 downto 0) := "010"; -- L/R
     constant XY : std_logic_vector(2 downto 0) := "011"; -- y = x
     constant YX : std_logic_vector(2 downto 0) := "100"; -- y = -x
-    constant DX : std_logic_vector(2 downto 0) := "111"; -- turn about 0,y
-    constant DY : std_logic_vector(2 downto 0) := "110"; -- turn about x,0
     constant D : std_logic_vector(2 downto 0) := "101"; -- turn
     constant STILL : std_logic_vector(2 downto 0) := "000"; -- stop, only in array mode
 
@@ -68,49 +66,47 @@ begin
         elsif rising_edge(clk) then
             if rx_valid = '1' then
                 case rx_cmd is
+                    -- Y: Forward/Backward - all wheels same direction
                     when Y =>
                         ena1 <= '1'; dir1 <= '0';
                         ena2 <= '1'; dir2 <= '0';
                         ena3 <= '1'; dir3 <= '0';
                         ena4 <= '1'; dir4 <= '0';
                     
+                    -- X: Strafe Left/Right
+                    -- FL(1) and BR(4) same direction
+                    -- FR(2) and BL(3) opposite direction
                     when X =>
                         ena1 <= '1'; dir1 <= '0'; 
                         ena2 <= '1'; dir2 <= '1';  
                         ena3 <= '1'; dir3 <= '1';  
                         ena4 <= '1'; dir4 <= '0'; 
                     
+                    -- XY: Diagonal (forward-right / back-left)
+                    -- Only FR(2) and BL(3) active
                     when XY =>
-                        ena1 <= '1'; dir1 <= '0'; 
-                        ena2 <= '1'; dir2 <= '1'; 
-                        ena3 <= '1'; dir3 <= '1';  
-                        ena4 <= '1'; dir4 <= '0';  
-                    
-                    when YX =>
-                        ena1 <= '1'; dir1 <= '1'; 
+                        ena1 <= '0'; dir1 <= '0'; 
                         ena2 <= '1'; dir2 <= '0'; 
                         ena3 <= '1'; dir3 <= '0';  
-                        ena4 <= '1'; dir4 <= '1';  
+                        ena4 <= '0'; dir4 <= '0';  
                     
-                    when DX =>
+                    -- YX: Diagonal (forward-left / back-right)
+                    -- Only FL(1) and BR(4) active
+                    when YX =>
                         ena1 <= '1'; dir1 <= '0'; 
-                        ena2 <= '1'; dir2 <= '1'; 
-                        ena3 <= '0'; dir3 <= '0'; 
-                        ena4 <= '0'; dir4 <= '0'; 
-                    
-                    when DY =>
-                        ena1 <= '0'; dir1 <= '0';
-                        ena2 <= '0'; dir2 <= '0';
-                        ena3 <= '1'; dir3 <= '0';  
-                        ena4 <= '1'; dir4 <= '1';  
-                                        
+                        ena2 <= '0'; dir2 <= '0'; 
+                        ena3 <= '0'; dir3 <= '0';  
+                        ena4 <= '1'; dir4 <= '0';  
+            
+                    -- D: Rotate in place
+                    -- Left side (1,3) one direction, Right side (2,4) opposite
                     when D =>
                         ena1 <= '1'; dir1 <= '0'; 
                         ena2 <= '1'; dir2 <= '1'; 
                         ena3 <= '1'; dir3 <= '0';  
                         ena4 <= '1'; dir4 <= '1';  
                     
-                    -- STILL
+                    -- STILL: All motors off
                     when STILL =>
                         ena1 <= '0'; dir1 <= '0';
                         ena2 <= '0'; dir2 <= '0';

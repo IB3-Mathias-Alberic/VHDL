@@ -48,8 +48,9 @@ architecture structural of top is
     signal d_1, d_2, d_3, d_4 : std_logic;
     signal dir_M : std_logic;
 
-
-    
+    -- Synchronized PWM input (prevents metastability)
+    signal pwm_sync_1 : unsigned(7 downto 0) := (others => '0');
+    signal pwm_sync_2 : unsigned(7 downto 0) := (others => '0');    
     component UART_Rx is
         generic (
             f_clk : integer;
@@ -125,10 +126,23 @@ begin
         port map (
             clk => clk,
             rst => rst,
-            pwm => pwm_in,
+            pwm => pwm_sync_2,  -- Use synchronized signal
             pwm_out => pwm_m
         );
 
+    -- PWM input synchronizer (2-stage for metastability)
+    sync_pwm_proc : process(clk)
+    begin
+        if rising_edge(clk) then
+            if rst = '1' then
+                pwm_sync_1 <= (others => '0');
+                pwm_sync_2 <= (others => '0');
+            else
+                pwm_sync_1 <= pwm_in;
+                pwm_sync_2 <= pwm_sync_1;
+            end if;
+        end if;
+    end process;
     dir_M <= rx_data(7);
     -- invert CW?
     dir_1 <= (d_1 xor dir_M) and ena_1;
