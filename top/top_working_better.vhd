@@ -18,7 +18,6 @@ entity top is
         -- PWM out
         pwm_m : out std_logic;
         -- directions CW
-        dir_M : in std_logic; -- master direction
         dir_1 : out std_logic;
         dir_2 : out std_logic;
         dir_3 : out std_logic;
@@ -47,6 +46,8 @@ architecture structural of top is
     
     -- motor direction signals from controller
     signal d_1, d_2, d_3, d_4 : std_logic;
+    signal dir_M : std_logic;
+
 
     
     component UART_Rx is
@@ -127,6 +128,8 @@ begin
             pwm => pwm_in,
             pwm_out => pwm_m
         );
+
+    dir_M <= rx_data(7);
     -- invert CW?
     dir_1 <= (d_1 xor dir_M) and ena_1;
     dir_2 <= (d_2 xor dir_M) and ena_2;

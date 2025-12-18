@@ -27,17 +27,17 @@ end controller;
 
 architecture rtl of controller is
     
-    constant Y : std_logic_vector(2 downto 0) := "000"; --F/B
-    constant X : std_logic_vector(2 downto 0) := "001"; -- L/R
-    constant XY : std_logic_vector(2 downto 0) := "010"; -- y = x
-    constant YX : std_logic_vector(2 downto 0) := "011"; -- y = -x
-    constant DX : std_logic_vector(2 downto 0) := "100"; -- turn about 0,y
-    constant DY : std_logic_vector(2 downto 0) := "101"; -- turn about x,0
-    constant D : std_logic_vector(2 downto 0) := "110"; -- turn
-    constant STILL : std_logic_vector(2 downto 0) := "111"; -- stop, only in array mode
+    constant Y : std_logic_vector(2 downto 0) := "001"; --F/B
+    constant X : std_logic_vector(2 downto 0) := "010"; -- L/R
+    constant XY : std_logic_vector(2 downto 0) := "011"; -- y = x
+    constant YX : std_logic_vector(2 downto 0) := "100"; -- y = -x
+    constant DX : std_logic_vector(2 downto 0) := "111"; -- turn about 0,y
+    constant DY : std_logic_vector(2 downto 0) := "110"; -- turn about x,0
+    constant D : std_logic_vector(2 downto 0) := "101"; -- turn
+    constant STILL : std_logic_vector(2 downto 0) := "000"; -- stop, only in array mode
 
     -- UART signals
-    signal rx_cmd : std_logic_vector(2 downto 0) := rx_data(2 downto 0);
+    signal rx_cmd : std_logic_vector(2 downto 0);
     
     -- motor control signals
     signal ena1, ena2, ena3, ena4 : std_logic;
@@ -48,6 +48,9 @@ architecture rtl of controller is
     --   BL(3)BR(4)
     
 begin
+    
+    -- extract command from UART data
+    rx_cmd <= rx_data(2 downto 0);
     
     -- controller
     process(clk, rst)
