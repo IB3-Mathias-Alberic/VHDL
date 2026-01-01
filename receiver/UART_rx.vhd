@@ -1,6 +1,5 @@
 -- src : vhdl complex digitaal ontwerp
 -- repo : https://github.com/AlbericSimperl1/uart2spi/blob/uartFSM/uartRX.vhd
-
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
@@ -12,12 +11,9 @@ entity UART_Rx is
     );
 
     port (
-        -- standard
         clk : in  std_logic;
         rst : in  std_logic;
-        -- bits in
         rx : in  std_logic;
-        -- received signals
         d_out : out std_logic_vector(7 downto 0);
         d_valid : out std_logic
     );
@@ -59,7 +55,7 @@ begin
         end if;
     end process;
 
-    -- FSM and baud process
+    -- Gecombineerd proces voor baudrate en FSM
     main_proc : process(clk)
     begin
         if rising_edge(clk) then
@@ -77,21 +73,21 @@ begin
                 case s_state is
                     when IDLE =>
                         ctr_baud <= 0;
-                        if rx_x = '0' then -- start bit
+                        if rx_x = '0' then -- start bit gedetecteerd
                             s_state <= START;
-                            ctr_baud <= HALF_TICKS;  -- center of the bit
+                            ctr_baud <= HALF_TICKS;  -- Start op midden van bit
                         end if;
 
                     when START =>
                         if ctr_baud = TICKS - 1 then
                             ctr_baud <= 0;
                             sample <= '1';
-                            if rx_x = '0' then -- start bit ok
+                            if rx_x = '0' then -- start bit OK
                                 s_state <= RXING;
                                 s_count <= 0;
                                 s_data <= (others => '0');
                             else
-                                s_state <= IDLE;
+                                s_state <= IDLE; -- valse start
                             end if;
                         else
                             ctr_baud <= ctr_baud + 1;
@@ -115,7 +111,7 @@ begin
                         if ctr_baud = TICKS - 1 then
                             ctr_baud <= 0;
                             sample <= '1';
-                            if rx_x = '1' then -- stop bit ok
+                            if rx_x = '1' then -- stop bit OK
                                 s_d_valid <= '1';
                             end if;
                             s_state <= IDLE;
@@ -127,7 +123,7 @@ begin
             end if;
         end if;
     end process;
-
+    
     -- output
     d_out <= s_data;
     d_valid <= s_d_valid;
