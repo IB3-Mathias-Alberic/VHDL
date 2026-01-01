@@ -3,37 +3,37 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 entity controller is
+   
     port (
         -- standard
         clk : in std_logic;
         rst : in std_logic;
-        
         -- input = uart via RPi
         rx_data : in std_logic_vector(7 downto 0);
         rx_valid : in std_logic;
+        -- motor PWM speed
+        ena_1 : out std_logic;    
+        ena_2 : out std_logic;
+        ena_3 : out std_logic;
+        ena_4 : out std_logic;
+        -- motor directions
+        d_1 : out std_logic;    
+        d_2 : out std_logic;
+        d_3 : out std_logic;
+        d_4 : out std_logic
         
-        -- motor ena
-        ena_front : out std_logic;
-        ena_rear : out std_logic;
-        
-        -- motor directions (2 bits each: dir & NOT dir)
-        d_1 : out std_logic_vector(1 downto 0);
-        d_2 : out std_logic_vector(1 downto 0);
-        d_3 : out std_logic_vector(1 downto 0);
-        d_4 : out std_logic_vector(1 downto 0)
     );
 end controller;
 
 architecture rtl of controller is
-    constant Y : std_logic_vector(2 downto 0) := "000"; --F/B
-    constant X : std_logic_vector(2 downto 0) := "001"; -- L/R
-    constant XY : std_logic_vector(2 downto 0) := "010"; -- y = x
-    constant YX : std_logic_vector(2 downto 0) := "011"; -- y = -x
-    constant DX : std_logic_vector(2 downto 0) := "100"; -- turn about 0,y
-    constant DY : std_logic_vector(2 downto 0) := "101"; -- turn about x,0
-    constant D : std_logic_vector(2 downto 0) := "110"; -- turn
-    constant STILL : std_logic_vector(2 downto 0) := "111"; -- stop, only in array mode
     
+    constant Y : std_logic_vector(2 downto 0) := "001"; --F/B
+    constant X : std_logic_vector(2 downto 0) := "010"; -- L/R
+    constant XY : std_logic_vector(2 downto 0) := "011"; -- y = x
+    constant YX : std_logic_vector(2 downto 0) := "100"; -- y = -x
+    constant D : std_logic_vector(2 downto 0) := "101"; -- turn
+    constant STILL : std_logic_vector(2 downto 0) := "000"; -- stop, only in array mode
+
     -- UART signals
     signal rx_cmd : std_logic_vector(2 downto 0);
     
@@ -42,10 +42,12 @@ architecture rtl of controller is
     signal dir1, dir2, dir3, dir4 : std_logic;
     
     -- motor layout
-    -- FL(1)FR(2)
-    -- BL(3)BR(4)
+    --   FL(1)FR(2)
+    --   BL(3)BR(4)
     
 begin
+    
+    -- extract command from UART data
     rx_cmd <= rx_data(2 downto 0);
     
     -- controller
@@ -60,49 +62,57 @@ begin
             dir2 <= '0';
             dir3 <= '0';
             dir4 <= '0';
+            
         elsif rising_edge(clk) then
             if rx_valid = '1' then
                 case rx_cmd is
+                    -- Y: Forward/Backward - all wheels same direction
                     when Y =>
                         ena1 <= '1'; dir1 <= '0';
                         ena2 <= '1'; dir2 <= '0';
                         ena3 <= '1'; dir3 <= '0';
                         ena4 <= '1'; dir4 <= '0';
+                    
+                    -- X: Strafe Left/Right
+                    -- FL(1) and BR(4) same direction
+                    -- FR(2) and BL(3) opposite direction
                     when X =>
-                        ena1 <= '1'; dir1 <= '0';
-                        ena2 <= '1'; dir2 <= '1';
-                        ena3 <= '1'; dir3 <= '1';
-                        ena4 <= '1'; dir4 <= '0';
+                        ena1 <= '1'; dir1 <= '0'; 
+                        ena2 <= '1'; dir2 <= '1';  
+                        ena3 <= '1'; dir3 <= '1';  
+                        ena4 <= '1'; dir4 <= '0'; 
+                    
+                    -- XY: Diagonal (forward-right / back-left)
+                    -- Only FR(2) and BL(3) active
                     when XY =>
-                        ena1 <= '1'; dir1 <= '0';
-                        ena2 <= '1'; dir2 <= '1';
-                        ena3 <= '1'; dir3 <= '1';
-                        ena4 <= '1'; dir4 <= '0';
+                        ena1 <= '0'; dir1 <= '0'; 
+                        ena2 <= '1'; dir2 <= '0'; 
+                        ena3 <= '1'; dir3 <= '0';  
+                        ena4 <= '0'; dir4 <= '0';  
+                    
+                    -- YX: Diagonal (forward-left / back-right)
+                    -- Only FL(1) and BR(4) active
                     when YX =>
-                        ena1 <= '1'; dir1 <= '1';
-                        ena2 <= '1'; dir2 <= '0';
-                        ena3 <= '1'; dir3 <= '0';
-                        ena4 <= '1'; dir4 <= '1';
-                    when DX =>
-                        ena1 <= '1'; dir1 <= '0';
-                        ena2 <= '1'; dir2 <= '1';
-                        ena3 <= '0'; dir3 <= '0';
-                        ena4 <= '0'; dir4 <= '0';
-                    when DY =>
-                        ena1 <= '0'; dir1 <= '0';
-                        ena2 <= '0'; dir2 <= '0';
-                        ena3 <= '1'; dir3 <= '0';
-                        ena4 <= '1'; dir4 <= '1';
+                        ena1 <= '1'; dir1 <= '0'; 
+                        ena2 <= '0'; dir2 <= '0'; 
+                        ena3 <= '0'; dir3 <= '0';  
+                        ena4 <= '1'; dir4 <= '0';  
+            
+                    -- D: Rotate in place
+                    -- Left side (1,3) one direction, Right side (2,4) opposite
                     when D =>
-                        ena1 <= '1'; dir1 <= '0';
-                        ena2 <= '1'; dir2 <= '1';
-                        ena3 <= '1'; dir3 <= '0';
-                        ena4 <= '1'; dir4 <= '1';
+                        ena1 <= '1'; dir1 <= '0'; 
+                        ena2 <= '1'; dir2 <= '1'; 
+                        ena3 <= '1'; dir3 <= '0';  
+                        ena4 <= '1'; dir4 <= '1';  
+                    
+                    -- STILL: All motors off
                     when STILL =>
                         ena1 <= '0'; dir1 <= '0';
                         ena2 <= '0'; dir2 <= '0';
                         ena3 <= '0'; dir3 <= '0';
                         ena4 <= '0'; dir4 <= '0';
+                    
                     when others =>
                         --keep state
                         null;
@@ -111,15 +121,10 @@ begin
         end if;
     end process;
     
-    -- front is always ena or not together, same with rear
-    -- also only one cable for ena
-    ena_front <= ena1 or ena2;
-    ena_rear <= ena3 or ena4;
-    
-    -- driver uses cw and ccw which are the xor highs
-    d_1 <= dir1 & (not dir1);
-    d_2 <= dir2 & (not dir2);
-    d_3 <= dir3 & (not dir3);
-    d_4 <= dir4 & (not dir4);
-    
+    d_1 <= dir1;    ena_1 <= ena1;
+    d_2 <= dir2;    ena_2 <= ena2;
+    d_3 <= dir3;    ena_3 <= ena3;
+    d_4 <= dir4;    ena_4 <= ena4;
+
+
 end architecture rtl;
