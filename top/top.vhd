@@ -17,13 +17,19 @@ entity top is
         pwm_in : in unsigned(7 downto 0);
         -- PWM out
         pwm_m : out std_logic;
-        -- master direction
-        dir_M : in std_logic;
-        -- motor directions (2-bit: CW and CCW)
-        dir_1 : out std_logic_vector(1 downto 0);
-        dir_2 : out std_logic_vector(1 downto 0);
-        dir_3 : out std_logic_vector(1 downto 0);
-        dir_4 : out std_logic_vector(1 downto 0);
+        -- directions CW
+        dir_1 : out std_logic;
+        dir_2 : out std_logic;
+        dir_3 : out std_logic;
+        dir_4 : out std_logic;
+        -- inverted signals CCW
+        dir_1n : out std_logic;    
+        dir_2n : out std_logic;
+        dir_3n : out std_logic;
+        dir_4n : out std_logic;
+        -- STANDBY 1's
+        s1 : out std_logic;
+        s2 : out std_logic;
         -- LEDs
         leds : out std_logic_vector(7 downto 0)
     );
@@ -36,10 +42,13 @@ architecture structural of top is
     signal rx_valid : std_logic;
     
     -- motor enable signals from controller
-    signal ena_front, ena_rear : std_logic;
+    signal ena_1, ena_2, ena_3, ena_4 : std_logic;
     
-    -- motor direction signals from controller (internal as vectors)
-    signal dir1_int, dir2_int, dir3_int, dir4_int : std_logic_vector(1 downto 0);
+    -- motor direction signals from controller
+    signal d_1, d_2, d_3, d_4 : std_logic;
+    signal dir_M : std_logic;
+
+
     
     component UART_Rx is
         generic (
@@ -56,12 +65,12 @@ architecture structural of top is
     end component;
     
     component pwm is
-        port (
-            clk : in  std_logic;
-            rst : in  std_logic;
-            pwm : in  unsigned(7 downto 0);
-            pwm_out : out std_logic
-        );
+            port (
+                clk : in  std_logic;
+                rst : in  std_logic;
+                pwm : in  unsigned(7 downto 0);
+                pwm_out : out std_logic
+            );
     end component;
     
     component controller is
@@ -70,12 +79,14 @@ architecture structural of top is
             rst : in  std_logic;
             rx_data : in  std_logic_vector(7 downto 0);
             rx_valid : in  std_logic;
-            ena_front : out std_logic;
-            ena_rear : out std_logic;
-            dir_1 : out std_logic_vector(1 downto 0);
-            dir_2 : out std_logic_vector(1 downto 0);
-            dir_3 : out std_logic_vector(1 downto 0);
-            dir_4 : out std_logic_vector(1 downto 0)
+            ena_1 : out std_logic;
+            ena_2 : out std_logic;
+            ena_3 : out std_logic;
+            ena_4 : out std_logic;
+            d_1 : out std_logic;
+            d_2 : out std_logic;
+            d_3 : out std_logic;
+            d_4 : out std_logic
         );
     end component;
     
@@ -100,12 +111,14 @@ begin
             rst => rst,
             rx_data => rx_data,
             rx_valid => rx_valid,
-            ena_front => ena_front,
-            ena_rear => ena_rear,
-            dir_1 => dir1_int,
-            dir_2 => dir2_int,
-            dir_3 => dir3_int,
-            dir_4 => dir4_int
+            ena_1 => ena_1,
+            ena_2 => ena_2,
+            ena_3 => ena_3,
+            ena_4 => ena_4,
+            d_1 => d_1,
+            d_2 => d_2,
+            d_3 => d_3,
+            d_4 => d_4
         );
     
     pwm_inst : pwm
@@ -115,16 +128,22 @@ begin
             pwm => pwm_in,
             pwm_out => pwm_m
         );
-    
-    -- Direction logic with master direction inversion
-    -- dir(1) = CW, dir(0) = CCW
-    -- When dir_M = '1', swap CW and CCW bits
-    dir_1 <= dir1_int(0) & dir1_int(1) when dir_M = '1' else dir1_int;
-    dir_2 <= dir2_int(0) & dir2_int(1) when dir_M = '1' else dir2_int;
-    dir_3 <= dir3_int(0) & dir3_int(1) when dir_M = '1' else dir3_int;
-    dir_4 <= dir4_int(0) & dir4_int(1) when dir_M = '1' else dir4_int;
-    
-    -- LED debugging output
+
+    dir_M <= rx_data(7);
+    -- invert CW?
+    dir_1 <= (d_1 xor dir_M) and ena_1;
+    dir_2 <= (d_2 xor dir_M) and ena_2;
+    dir_3 <= (d_3 xor dir_M) and ena_3;
+    dir_4 <= (d_4 xor dir_M) and ena_4;
+    -- invert CCW?
+    dir_1n <= ((not d_1) xor dir_M) and (ena_1);
+    dir_2n <= ((not d_2) xor dir_M) and (ena_2);
+    dir_3n <= ((not d_3) xor dir_M) and (ena_3);
+    dir_4n <= ((not d_4) xor dir_M) and (ena_4);
+    -- standby
+    s1 <= '1';
+    s2 <= '1';
+    -- LED array
     leds <= rx_data;
-    
+
 end architecture structural;
