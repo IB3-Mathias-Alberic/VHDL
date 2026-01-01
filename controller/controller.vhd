@@ -32,7 +32,7 @@ architecture rtl of controller is
     constant XY : std_logic_vector(2 downto 0) := "011"; -- y = x
     constant YX : std_logic_vector(2 downto 0) := "100"; -- y = -x
     constant D : std_logic_vector(2 downto 0) := "101"; -- turn
-    constant STILL : std_logic_vector(2 downto 0) := "000"; -- stop, only in array mode
+    constant STILL : std_logic_vector(2 downto 0) := "000";
 
     -- UART signals
     signal rx_cmd : std_logic_vector(2 downto 0);
